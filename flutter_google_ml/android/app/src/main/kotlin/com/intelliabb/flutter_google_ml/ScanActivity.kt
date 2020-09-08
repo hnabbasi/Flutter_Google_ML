@@ -33,7 +33,7 @@ class ScanActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scan)
 
-        viewFinder = findViewById(R.id.viewFinder);
+        viewFinder = findViewById(R.id.viewFinder)
 
         if(allPermissionsGranted())
             startCamera()
@@ -135,16 +135,14 @@ class ScanActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun onCancelTapped(view: View) {
+        setResult(Activity.RESULT_CANCELED)
+        finish()
+    }
 
     companion object {
         private const val TAG = "ScanActivity"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-    }
-
-    fun onCancelTapped(view: View) {
-        val intent = Intent()
-        setResult(Activity.RESULT_CANCELED, intent)
-        finish()
     }
 }

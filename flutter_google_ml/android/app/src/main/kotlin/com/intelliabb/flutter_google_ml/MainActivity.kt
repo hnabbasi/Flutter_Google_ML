@@ -14,23 +14,46 @@ class MainActivity: FlutterActivity() {
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, MAIN_CHANNEL).setMethodCallHandler  {
             call, result ->
-            if(call.method == SCAN_METHOD){
-                this.result = result
-                getScannedText()
-            } else {
-                result.notImplemented()
+
+            this.result = result
+
+            when (call.method) {
+                "getScannedText" -> getScannedText()
+                "getScannedBarcode" -> getScannedBarcode()
+                "getScannedFace" -> getScannedText()
+                "getScannedObject" -> getScannedText()
+                else -> result.notImplemented()
             }
         }
     }
 
     private fun getScannedText() {
         val intent = Intent(this, ScanActivity::class.java)
-        this.startActivityForResult(intent, SCAN_ACTIVITY_CODE)
+        this.startActivityForResult(intent, TEXT_SCAN_CODE)
+    }
+
+    private fun getScannedBarcode() {
+        val intent = Intent(this, BarcodeActivity::class.java)
+        this.startActivityForResult(intent, BARCODE_SCAN_CODE)
+    }
+
+    private fun getScannedFace() {
+        val intent = Intent(this, BarcodeActivity::class.java)
+        this.startActivityForResult(intent, BARCODE_SCAN_CODE)
+    }
+
+    private fun getScannedObject() {
+        val intent = Intent(this, BarcodeActivity::class.java)
+        this.startActivityForResult(intent, BARCODE_SCAN_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            SCAN_ACTIVITY_CODE -> handleScanResults(data)
+            TEXT_SCAN_CODE -> handleScanResults(data)
+            BARCODE_SCAN_CODE -> handleScanResults(data)
+            FACE_SCAN_CODE -> handleScanResults(data)
+            OBJECT_SCAN_CODE -> handleScanResults(data)
+            else -> result.error("ResultNotFound","Result Activity Not Found", null)
         }
     }
 
@@ -44,8 +67,10 @@ class MainActivity: FlutterActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
-        private val MAIN_CHANNEL = "com.intelliabb.flutter_google_ml"
-        private val SCAN_METHOD = "getScannedText"
-        private val SCAN_ACTIVITY_CODE = 0
+        private const val MAIN_CHANNEL = "com.intelliabb.flutter_google_ml"
+        private const val TEXT_SCAN_CODE = 0
+        private const val BARCODE_SCAN_CODE = 1
+        private const val FACE_SCAN_CODE = 2
+        private const val OBJECT_SCAN_CODE = 3
     }
 }
