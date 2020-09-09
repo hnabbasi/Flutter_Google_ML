@@ -22,18 +22,15 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text("Google ML Kit"),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
+      body: ListView(
+        children: [
             Container(
-              padding: EdgeInsets.all(120),
+              padding: EdgeInsets.all(80),
+              margin: EdgeInsets.all(30),
               decoration: BoxDecoration(
                 image: DecorationImage(image: NetworkImage("https://developers.google.com/ml-kit/images/homepage/hero_720.png"))
               ),
             ),
-            SizedBox(height: 20),
             ListTile(
               contentPadding: EdgeInsets.fromLTRB(30, 15, 30, 15),
               leading: Icon(Icons.text_fields),
@@ -83,8 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),      
           ],
-        ),
-      ),// This trailing comma makes auto-formatting nicer for build methods.
+        ),// This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
