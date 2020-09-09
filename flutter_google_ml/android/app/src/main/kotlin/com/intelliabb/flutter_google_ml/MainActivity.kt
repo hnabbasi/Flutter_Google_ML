@@ -21,7 +21,7 @@ class MainActivity: FlutterActivity() {
                 "getScannedText" -> getScannedText()
                 "getScannedBarcode" -> getScannedBarcode()
                 "getScannedFace" -> getScannedFace()
-                "getScannedObject" -> getScannedText()
+                "getScannedObject" -> getScannedObject()
                 else -> result.notImplemented()
             }
         }
@@ -43,8 +43,8 @@ class MainActivity: FlutterActivity() {
     }
 
     private fun getScannedObject() {
-        val intent = Intent(this, BarcodeActivity::class.java)
-        this.startActivityForResult(intent, BARCODE_SCAN_CODE)
+        val intent = Intent(this, ObjectActivity::class.java)
+        this.startActivityForResult(intent, OBJECT_SCAN_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
