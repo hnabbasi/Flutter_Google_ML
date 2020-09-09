@@ -104,7 +104,7 @@ class ScanActivity : AppCompatActivity() {
             for (line in lines) {
                 val elements = line.elements
                 for (i in elements.indices) {
-                    retVal.appendln(elements[i].text)
+                    retVal.appendLine(elements[i].text)
                 }
             }
         }

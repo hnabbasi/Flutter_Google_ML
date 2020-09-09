@@ -30,7 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               padding: EdgeInsets.all(120),
               decoration: BoxDecoration(
-                image: DecorationImage(image: NetworkImage("https://chaione.com/wp-content/uploads/2018/08/header-image-technical.png"))
+                image: DecorationImage(image: NetworkImage("https://developers.google.com/ml-kit/images/homepage/hero_720.png"))
               ),
             ),
             SizedBox(height: 20),
