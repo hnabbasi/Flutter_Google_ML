@@ -25,12 +25,20 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            Container(
+              padding: EdgeInsets.all(120),
+              decoration: BoxDecoration(
+                image: DecorationImage(image: NetworkImage("https://chaione.com/wp-content/uploads/2018/08/header-image-technical.png"))
+              ),
+            ),
+            SizedBox(height: 20),
             ListTile(
               contentPadding: EdgeInsets.fromLTRB(30, 15, 30, 15),
               leading: Icon(Icons.text_fields),
               title: Text("Text Recognition"),
-              subtitle: Text("Scan text and recognize"),
+              subtitle: Text("Scan text to recognize"),
               onTap: () {
                 Navigator.push(
                   context,
@@ -42,7 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
               contentPadding: EdgeInsets.fromLTRB(30, 15, 30, 15),
               leading: Icon(Icons.border_clear),
               title: Text("Barcode Recognition"),
-              subtitle: Text("Scan barcode and recognize"),
+              subtitle: Text("Scan multiple barcodes"),
               onTap: () {
                 Navigator.push(
                   context,

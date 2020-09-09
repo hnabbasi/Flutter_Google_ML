@@ -42,8 +42,10 @@ class _BarcodeRecognitionState extends State<BarcodeRecognition> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Icon(Icons.border_clear),
+            SizedBox(height: 10),
             Text(
-              'Barcode found:',
+              'Scan multiple barcodes',
             ),
             Center(
               child: Text(

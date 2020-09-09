@@ -11,7 +11,6 @@ class FaceRecognition extends StatefulWidget {
 
 class _FaceRecognitionState extends State<FaceRecognition> {
 
-  String _result = "";
 
   Future<void> getScannedFace() async {
     String retVal;
@@ -21,11 +20,7 @@ class _FaceRecognitionState extends State<FaceRecognition> {
     } on PlatformException catch (e) {
       retVal = e.message;
     }
-
-    setState(() {
-      print(retVal);
-      _result = retVal;
-    });
+    print(retVal);
   }
 
   void _scan() {
@@ -42,12 +37,10 @@ class _FaceRecognitionState extends State<FaceRecognition> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Icon(Icons.face),
+            SizedBox(height: 10),
             Text(
-              'Face found:',
-            ),
-            Text(
-              _result,
-              style: Theme.of(conFace).textTheme.headline4,
+              'Launch real-time face detection',
             ),
           ],
         ),

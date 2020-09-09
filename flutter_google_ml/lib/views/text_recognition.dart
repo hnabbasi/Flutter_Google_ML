@@ -42,8 +42,10 @@ class _TextRecognitionState extends State<TextRecognition> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Icon(Icons.text_fields),
+            SizedBox(height: 10),
             Text(
-              'Text found:',
+              'Scan text to recognize',
             ),
             Center(
               child: Text(

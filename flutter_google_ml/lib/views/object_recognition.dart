@@ -11,8 +11,6 @@ class ObjectRecognition extends StatefulWidget {
 
 class _ObjectRecognitionState extends State<ObjectRecognition> {
 
-  String _result = "";
-
   Future<void> getScannedObject() async {
     String retVal;
     try {
@@ -21,11 +19,7 @@ class _ObjectRecognitionState extends State<ObjectRecognition> {
     } on PlatformException catch (e) {
       retVal = e.message;
     }
-
-    setState(() {
-      print(retVal);
-      _result = retVal;
-    });
+    print(retVal);
   }
 
   void _scan() {
@@ -42,12 +36,10 @@ class _ObjectRecognitionState extends State<ObjectRecognition> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Icon(Icons.beach_access),
+            SizedBox(height: 10),
             Text(
-              'Object found:',
-            ),
-            Text(
-              _result,
-              style: Theme.of(context).textTheme.headline4,
+              'Launch object detection',
             ),
           ],
         ),
