@@ -25,5 +25,60 @@
             </objects>
             <point key="canvasLocation" x="34" y="31"/>
         </scene>
+        <!--Scan View Controller-->
+        <scene sceneID="WC5-3v-FxM">
+            <objects>
+                <viewController storyboardIdentifier="textscan" id="Sje-al-yvv" customClass="ScanViewController" customModule="Runner" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="3r8-f3-Bn5"/>
+                        <viewControllerLayoutGuide type="bottom" id="o5L-7k-cb2"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="FFn-Tm-izt">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Rtl-O5-6xy">
+                                <rect key="frame" x="20" y="44" width="374" height="818"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="NKG-ze-jwd">
+                                        <rect key="frame" x="0.0" y="0.0" width="374" height="701.5"/>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Result" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5gt-py-nPb">
+                                        <rect key="frame" x="0.0" y="721.5" width="374" height="26.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="22"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Prb-4Y-kRJ">
+                                        <rect key="frame" x="0.0" y="768" width="374" height="50"/>
+                                        <color key="backgroundColor" systemColor="systemBlueColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="Vc1-sp-Js1"/>
+                                        </constraints>
+                                        <state key="normal" title="Done"/>
+                                        <connections>
+                                            <action selector="doneTouched:" destination="Sje-al-yvv" eventType="touchUpInside" id="cMb-vL-Ge8"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="Rtl-O5-6xy" secondAttribute="trailing" id="0JH-9H-pGs"/>
+                            <constraint firstItem="Rtl-O5-6xy" firstAttribute="top" secondItem="3r8-f3-Bn5" secondAttribute="bottom" id="158-oo-W80"/>
+                            <constraint firstItem="Rtl-O5-6xy" firstAttribute="leading" secondItem="FFn-Tm-izt" secondAttribute="leadingMargin" id="A2H-5a-2r9"/>
+                            <constraint firstItem="o5L-7k-cb2" firstAttribute="top" secondItem="Rtl-O5-6xy" secondAttribute="bottom" id="jOH-sx-5GP"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="NKG-ze-jwd" id="R4q-f5-VZ8"/>
+                        <outlet property="resultLabel" destination="5gt-py-nPb" id="niD-Mf-7oi"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="lWg-bU-21I" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="984" y="31"/>
+        </scene>
     </scenes>
 </document>

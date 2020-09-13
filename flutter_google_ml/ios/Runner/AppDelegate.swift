@@ -29,10 +29,18 @@ import Flutter
     }
    
     private func getScannedText(result: @escaping FlutterResult) -> Void {
-        let svc = ScanViewController()
-        svc.result = result
         
         let controller = window?.rootViewController as! FlutterViewController
+        var svc:ScanViewController
+        
+        if #available(iOS 13.0, *) {
+            svc = controller.storyboard?.instantiateViewController(identifier: "textscan") as! ScanViewController
+        } else {
+            svc = ScanViewController()
+        }
+        
+        svc.result = result
+        
         controller.present(svc, animated: false, completion: nil)
     }
 }
