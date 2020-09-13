@@ -5,23 +5,24 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Size
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class ScanActivity : AppCompatActivity() {
+import com.google.mlkit.vision.barcode.Barcode
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
+
+class BarcodeActivity : AppCompatActivity() {
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
@@ -39,8 +40,8 @@ class ScanActivity : AppCompatActivity() {
             startCamera()
         else
             ActivityCompat.requestPermissions(this,
-            REQUIRED_PERMISSIONS,
-            REQUEST_CODE_PERMISSIONS)
+                    BarcodeActivity.REQUIRED_PERMISSIONS,
+                    BarcodeActivity.REQUEST_CODE_PERMISSIONS)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -77,38 +78,23 @@ class ScanActivity : AppCompatActivity() {
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun processImage(imageProxy: ImageProxy) {
         val image = InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
-
-        val recognizer = TextRecognition.getClient()
-        recognizer.process(image)
-                .addOnSuccessListener {
-                    processText(it as Text)
+        val scanner = BarcodeScanning.getClient()
+        scanner.process(image)
+                .addOnSuccessListener { barcodes ->
+                    processBarcode(barcodes)
                 }
-                .addOnFailureListener {
-                    it.printStackTrace()
+                .addOnFailureListener{ e -> // Task failed with an exception
+                    e.printStackTrace()
                 }
                 .addOnCompleteListener {
                     imageProxy.close()
                 }
     }
 
-    private fun processText(text: Text) {
-        val blocks = text.textBlocks
-        if(blocks.isEmpty()) {
+    private fun processBarcode(barcodes: List<Barcode>) {
+        if(barcodes.isEmpty())
             return
-        }
-
-        var retVal = StringBuilder()
-
-        for (block in blocks) {
-            val lines = block.lines
-            for (line in lines) {
-                val elements = line.elements
-                for (i in elements.indices) {
-                    retVal.appendLine(elements[i].text)
-                }
-            }
-        }
-        handleResult(retVal.toString())
+        handleResult(barcodes.joinToString { it.rawValue!! })
     }
 
     private fun handleResult(result: String) {
@@ -141,7 +127,7 @@ class ScanActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "ScanActivity"
+        private const val TAG = "BarcodeActivity"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }

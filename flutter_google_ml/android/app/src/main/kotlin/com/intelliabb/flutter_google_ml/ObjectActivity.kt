@@ -5,42 +5,51 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Size
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.objects.DetectedObject
+import com.google.mlkit.vision.objects.ObjectDetection
+import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
+import com.google.mlkit.vision.objects.defaults.PredefinedCategory
+import com.intelliabb.flutter_google_ml.utils.GraphicOverlay
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
-class ScanActivity : AppCompatActivity() {
+class ObjectActivity : AppCompatActivity() {
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var viewFinder: PreviewView? = null
 
     private lateinit var cameraExecutor: ExecutorService
+    private lateinit var graphicOverlay: GraphicOverlay
+    private lateinit var happinessView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_scan)
+        setContentView(R.layout.activity_face)
 
         viewFinder = findViewById(R.id.viewFinder)
+        graphicOverlay = findViewById(R.id.graphic_overlay)
+        happinessView = findViewById(R.id.happiness)
 
         if(allPermissionsGranted())
             startCamera()
         else
             ActivityCompat.requestPermissions(this,
-            REQUIRED_PERMISSIONS,
-            REQUEST_CODE_PERMISSIONS)
+                    REQUIRED_PERMISSIONS,
+                    REQUEST_CODE_PERMISSIONS)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -53,7 +62,7 @@ class ScanActivity : AppCompatActivity() {
             preview = Preview.Builder().build()
             imageAnalyzer = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .setTargetResolution(Size(480,200))
+                    .setTargetResolution(Size(480,360))
                     .build()
                     .also {
                         it.setAnalyzer(cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
@@ -78,42 +87,46 @@ class ScanActivity : AppCompatActivity() {
     private fun processImage(imageProxy: ImageProxy) {
         val image = InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
 
-        val recognizer = TextRecognition.getClient()
-        recognizer.process(image)
-                .addOnSuccessListener {
-                    processText(it as Text)
+        // Live detection and tracking
+        val optionsSingle = ObjectDetectorOptions.Builder()
+                .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
+                .enableClassification()  // Optional
+                .build()
+
+        // Multiple object detection in static images
+        val optionsMultiple = ObjectDetectorOptions.Builder()
+                .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
+                .enableMultipleObjects()
+                .enableClassification()  // Optional
+                .build()
+
+        val objectDetector = ObjectDetection.getClient(optionsSingle)
+        objectDetector.process(image)
+                .addOnSuccessListener { detectedObjects ->
+                    processDetectedObject(detectedObjects)
                 }
-                .addOnFailureListener {
-                    it.printStackTrace()
+                .addOnFailureListener{ e -> // Task failed with an exception
+                    e.printStackTrace()
                 }
                 .addOnCompleteListener {
                     imageProxy.close()
                 }
     }
 
-    private fun processText(text: Text) {
-        val blocks = text.textBlocks
-        if(blocks.isEmpty()) {
-            return
-        }
-
-        var retVal = StringBuilder()
-
-        for (block in blocks) {
-            val lines = block.lines
-            for (line in lines) {
-                val elements = line.elements
-                for (i in elements.indices) {
-                    retVal.appendLine(elements[i].text)
-                }
+    private fun processDetectedObject(results: List<DetectedObject>) {
+        for (detectedObject in results) {
+            val boundingBox = detectedObject.boundingBox
+            val trackingId = detectedObject.trackingId
+            for (label in detectedObject.labels) {
+                val text = label.text
+                happinessView.text = "$text (${(label.confidence*100).roundToInt()}%)"
             }
         }
-        handleResult(retVal.toString())
     }
 
-    private fun handleResult(result: String) {
+    private fun handleResult() {
         val intent = Intent()
-        intent.putExtra("scanned_text", result)
+        intent.putExtra("scanned_text", "Done with object recognition")
         setResult(Activity.RESULT_OK, intent)
         finish()
     }
@@ -141,7 +154,7 @@ class ScanActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "ScanActivity"
+        private const val TAG = "ObjectActivity"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }

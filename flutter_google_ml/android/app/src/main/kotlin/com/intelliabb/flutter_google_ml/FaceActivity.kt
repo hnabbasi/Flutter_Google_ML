@@ -5,42 +5,56 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
+import android.hardware.camera2.CameraCharacteristics
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.Size
 import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.constraintlayout.solver.widgets.Rectangle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.codelab.mlkit.FaceContourGraphic
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
-import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.face.*
+import com.intelliabb.flutter_google_ml.utils.GraphicOverlay
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.roundToInt
 
-class ScanActivity : AppCompatActivity() {
+class FaceActivity : AppCompatActivity() {
     private var preview: Preview? = null
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var viewFinder: PreviewView? = null
 
     private lateinit var cameraExecutor: ExecutorService
+    private lateinit var graphicOverlay: GraphicOverlay
+    private lateinit var happinessView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_scan)
+        setContentView(R.layout.activity_face)
 
         viewFinder = findViewById(R.id.viewFinder)
+        graphicOverlay = findViewById(R.id.graphic_overlay)
+        happinessView = findViewById(R.id.happiness)
 
         if(allPermissionsGranted())
             startCamera()
         else
             ActivityCompat.requestPermissions(this,
-            REQUIRED_PERMISSIONS,
-            REQUEST_CODE_PERMISSIONS)
+                    FaceActivity.REQUIRED_PERMISSIONS,
+                    FaceActivity.REQUEST_CODE_PERMISSIONS)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -53,7 +67,7 @@ class ScanActivity : AppCompatActivity() {
             preview = Preview.Builder().build()
             imageAnalyzer = ImageAnalysis.Builder()
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .setTargetResolution(Size(480,200))
+                    .setTargetResolution(Size(480,360))
                     .build()
                     .also {
                         it.setAnalyzer(cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
@@ -77,43 +91,44 @@ class ScanActivity : AppCompatActivity() {
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun processImage(imageProxy: ImageProxy) {
         val image = InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
-
-        val recognizer = TextRecognition.getClient()
-        recognizer.process(image)
-                .addOnSuccessListener {
-                    processText(it as Text)
+        val realTimeOpts = FaceDetectorOptions.Builder()
+                .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+                .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+                .build()
+        val scanner = FaceDetection.getClient(realTimeOpts)
+        scanner.process(image)
+                .addOnSuccessListener { faces ->
+                    processFaces(faces)
                 }
-                .addOnFailureListener {
-                    it.printStackTrace()
+                .addOnFailureListener{ e -> // Task failed with an exception
+                    e.printStackTrace()
                 }
                 .addOnCompleteListener {
                     imageProxy.close()
                 }
     }
 
-    private fun processText(text: Text) {
-        val blocks = text.textBlocks
-        if(blocks.isEmpty()) {
-            return
-        }
+    private fun processFaces(faces: List<Face>) {
+        for (face in faces) {
 
-        var retVal = StringBuilder()
-
-        for (block in blocks) {
-            val lines = block.lines
-            for (line in lines) {
-                val elements = line.elements
-                for (i in elements.indices) {
-                    retVal.appendLine(elements[i].text)
-                }
+            // If classification was enabled:
+            if (face.smilingProbability != null) {
+                val smileProb = face.smilingProbability
+                Log.d(TAG, "Smiling: " + smileProb!!.toString())
+                val mood = (smileProb * 100).roundToInt()
+                happinessView.text = if (mood > 75) "Happy" else if (mood > 25) "O.K" else "Meh"
             }
+
+            graphicOverlay.clear()
+            val graphic = FaceContourGraphic(graphicOverlay)
+            graphicOverlay.add(graphic)
+            graphic.updateFace(face)
         }
-        handleResult(retVal.toString())
     }
 
-    private fun handleResult(result: String) {
+    private fun handleResult() {
         val intent = Intent()
-        intent.putExtra("scanned_text", result)
+        intent.putExtra("scanned_text", "Done with facial recognition")
         setResult(Activity.RESULT_OK, intent)
         finish()
     }
@@ -141,7 +156,7 @@ class ScanActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val TAG = "ScanActivity"
+        private const val TAG = "FaceActivity"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }

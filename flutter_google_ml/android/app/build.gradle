@@ -70,4 +70,7 @@ dependencies {
     implementation 'androidx.camera:camera-view:1.0.0-alpha15'
 
     implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.1'
+    implementation 'com.google.mlkit:barcode-scanning:16.0.3'
+    implementation 'com.google.mlkit:face-detection:16.0.2'
+    implementation 'com.google.mlkit:object-detection:16.2.1'
 }
